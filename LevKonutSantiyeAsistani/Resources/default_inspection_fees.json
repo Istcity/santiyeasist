@@ -1,0 +1,8 @@
+[
+  {"buildingGroup": "I-A", "minAreaM2": 0, "maxAreaM2": 500, "feeTry": 18500, "year": 2025},
+  {"buildingGroup": "I-A", "minAreaM2": 501, "maxAreaM2": 2000, "feeTry": 32000, "year": 2025},
+  {"buildingGroup": "I-A", "minAreaM2": 2001, "maxAreaM2": 5000, "feeTry": 48000, "year": 2025},
+  {"buildingGroup": "II-B", "minAreaM2": 0, "maxAreaM2": 500, "feeTry": 22000, "year": 2025},
+  {"buildingGroup": "II-B", "minAreaM2": 501, "maxAreaM2": 2000, "feeTry": 38500, "year": 2025},
+  {"buildingGroup": "III-C", "minAreaM2": 0, "maxAreaM2": 500, "feeTry": 26500, "year": 2025}
+]

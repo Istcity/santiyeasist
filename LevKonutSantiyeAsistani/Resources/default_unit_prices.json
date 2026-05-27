@@ -1,0 +1,10 @@
+[
+  {"id": "concrete_c30", "name": "Hazır Beton (C30)", "unit": "m3", "priceTry": 3500},
+  {"id": "rebar", "name": "İnşaat Demiri", "unit": "Ton", "priceTry": 33000},
+  {"id": "wall", "name": "Duvar (Malzeme+İşçilik)", "unit": "m2", "priceTry": 350},
+  {"id": "excavation", "name": "Hafriyat", "unit": "m3", "priceTry": 180},
+  {"id": "electrical", "name": "Elektrik Tesisatı", "unit": "m2", "priceTry": 1500},
+  {"id": "mechanical", "name": "Mekanik Tesisat", "unit": "m2", "priceTry": 1800},
+  {"id": "finishing", "name": "İnce İşler", "unit": "m2", "priceTry": 4500},
+  {"id": "permits", "name": "Ruhsat ve Harçlar", "unit": "m2", "priceTry": 1200}
+]
