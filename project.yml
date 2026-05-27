@@ -1,0 +1,50 @@
+name: LevKonutSantiyeAsistani
+options:
+  bundleIdPrefix: com.levkonut
+  deploymentTarget:
+    iOS: "16.0"
+  xcodeVersion: "15.0"
+packages:
+  Firebase:
+    url: https://github.com/firebase/firebase-ios-sdk
+    from: 11.0.0
+  GoogleMobileAds:
+    url: https://github.com/googleads/swift-package-manager-google-mobile-ads
+    from: 11.0.0
+targets:
+  LevKonutSantiyeAsistani:
+    type: application
+    platform: iOS
+    sources:
+      - path: LevKonutSantiyeAsistani
+    resources:
+      - path: LevKonutSantiyeAsistani/Resources
+      - path: LevKonutSantiyeAsistani/Assets.xcassets
+      - path: LevKonutSantiyeAsistani/GoogleService-Info.plist
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.levkonut.santiye
+        INFOPLIST_FILE: LevKonutSantiyeAsistani/Info.plist
+        INFOPLIST_KEY_CFBundleDisplayName: "Şantiye Asist"
+        INFOPLIST_KEY_ITSAppUsesNonExemptEncryption: NO
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_UISupportedInterfaceOrientations: "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+        INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        MARKETING_VERSION: "1.0.0"
+        CURRENT_PROJECT_VERSION: "11"
+        DEVELOPMENT_TEAM: R9VURFRPRC
+        CODE_SIGN_STYLE: Automatic
+        TARGETED_DEVICE_FAMILY: "1,2"
+        SWIFT_VERSION: "5.0"
+        GENERATE_INFOPLIST_FILE: YES
+      configs:
+        Release:
+          SWIFT_OPTIMIZATION_LEVEL: -Owholemodule
+    dependencies:
+      - package: Firebase
+        product: FirebaseCore
+      - package: Firebase
+        product: FirebaseRemoteConfig
+      - package: GoogleMobileAds
+        product: GoogleMobileAds

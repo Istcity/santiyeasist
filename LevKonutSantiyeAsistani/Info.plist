@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDisplayName</key>
+	<string>Şantiye Asist</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+	<key>GADApplicationIdentifier</key>
+	<string>ca-app-pub-8420759480841389~1653740471</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+	</array>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>com.levkonut.santiye.morning-briefing-refresh</string>
+	</array>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Şantiye konumunuza göre hava durumu ve inşaat tavsiyeleri için konum kullanılır.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Şantiye günlüğü için fotoğraf çekmek amacıyla kamera kullanılır.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Şantiye günlüğüne fotoğraf eklemek için galeri erişimi gereklidir.</string>
+	<key>SKAdNetworkItems</key>
+	<array>
+		<dict>
+			<key>SKAdNetworkIdentifier</key>
+			<string>cstr6suwn9.skadnetwork</string>
+		</dict>
+	</array>
+</dict>
+</plist>
