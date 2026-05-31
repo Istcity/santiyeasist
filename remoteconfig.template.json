@@ -1,0 +1,36 @@
+{
+  "parameters": {
+    "interstitial_ad_frequency": {
+      "defaultValue": {
+        "value": "5"
+      },
+      "valueType": "NUMBER"
+    },
+    "beton_m3_fiyat": {
+      "defaultValue": {
+        "value": "3500"
+      },
+      "valueType": "NUMBER"
+    },
+    "demir_ton_fiyat": {
+      "defaultValue": {
+        "value": "33000"
+      },
+      "valueType": "NUMBER"
+    },
+    "material_prices_url": {
+      "defaultValue": {
+        "value": "https://raw.githubusercontent.com/Istcity/santiyeasist/main/data/material_prices.json"
+      },
+      "description": "Merkezi malzeme fiyat feed JSON URL",
+      "valueType": "STRING"
+    },
+    "material_prices_json": {
+      "defaultValue": {
+        "value": ""
+      },
+      "description": "Opsiyonel inline JSON feed",
+      "valueType": "STRING"
+    }
+  }
+}
