@@ -65,6 +65,7 @@ enum CostCalculatorService {
         let subtotal = total + manualTotal
         let kdvAmount = subtotal * kdvPercent / 100
         let karAmount = subtotal * karMarjiPercent / 100
+        let grandTotal = subtotal + kdvAmount + karAmount
 
         return CostCalculationResult(
             projectName: projectName,
@@ -74,7 +75,7 @@ enum CostCalculatorService {
             totalBuildAreaM2: totalArea,
             lineItems: items,
             totalCostTry: total,
-            costPerM2Try: totalArea > 0 ? total / totalArea : 0,
+            costPerM2Try: totalArea > 0 ? grandTotal / totalArea : 0,
             manualItems: manualItems,
             manualTotalTry: manualTotal,
             kdvAmount: kdvAmount,

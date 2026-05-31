@@ -41,8 +41,21 @@ enum NotificationService {
   /// Hava + uygulamaya giriş teşviki; her sabah yerel 08:30'da tekrarlar.
   /// - Parameter useCachedLocationOnly: Arka plan yenilemede GPS yerine son bilinen konum.
   @MainActor
+  static func cancelDailyMorningBriefing() async {
+    UNUserNotificationCenter.current().removePendingNotificationRequests(
+      withIdentifiers: [dailyMorningBriefingID]
+    )
+  }
+
+  @MainActor
   static func refreshDailyMorningBriefing(useCachedLocationOnly: Bool = false) async {
     let center = UNUserNotificationCenter.current()
+
+    guard AppSettings.shared.morningBriefingEnabled else {
+      await cancelDailyMorningBriefing()
+      return
+    }
+
     let settings = await center.notificationSettings()
     guard settings.authorizationStatus == .authorized
       || settings.authorizationStatus == .provisional

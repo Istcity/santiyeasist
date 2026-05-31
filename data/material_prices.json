@@ -1,0 +1,114 @@
+{
+  "version": 2,
+  "updatedAt": "2026-05-30T11:58:54.483626+00:00",
+  "usdTry": 45.9065,
+  "cities": [
+    {
+      "cityKey": "istanbul",
+      "cityLabel": "İstanbul (Avrupa)",
+      "betonC30": {
+        "priceTry": 3240.0,
+        "unit": "m3",
+        "source": "proemtia.com"
+      },
+      "rebar": {
+        "priceTry": 34000.0,
+        "unit": "ton",
+        "source": "insaatdemiri.net"
+      }
+    },
+    {
+      "cityKey": "ankara",
+      "cityLabel": "Ankara",
+      "betonC30": {
+        "priceTry": 3150.0,
+        "unit": "m3",
+        "source": "proemtia.com"
+      },
+      "rebar": {
+        "priceTry": 34000.0,
+        "unit": "ton",
+        "source": "insaatdemiri.net"
+      }
+    },
+    {
+      "cityKey": "izmir",
+      "cityLabel": "İzmir",
+      "betonC30": {
+        "priceTry": 3180.0,
+        "unit": "m3",
+        "source": "proemtia.com"
+      },
+      "rebar": {
+        "priceTry": 33000.0,
+        "unit": "ton",
+        "source": "insaatdemiri.net"
+      }
+    },
+    {
+      "cityKey": "bursa",
+      "cityLabel": "Bursa",
+      "betonC30": {
+        "priceTry": 3120.0,
+        "unit": "m3",
+        "source": "proemtia.com"
+      },
+      "rebar": {
+        "priceTry": 34700.0,
+        "unit": "ton",
+        "source": "insaatdemiri.net"
+      }
+    },
+    {
+      "cityKey": "canakkale_biga",
+      "cityLabel": "Çanakkale Biga",
+      "betonC30": {
+        "priceTry": 3000.0,
+        "unit": "m3",
+        "source": "proemtia.com"
+      },
+      "rebar": {
+        "priceTry": 33800.0,
+        "unit": "ton",
+        "source": "insaatdemiri.net"
+      }
+    }
+  ],
+  "extended": [
+    {
+      "id": "seramik",
+      "priceTry": 212.96,
+      "source": "proemtia.com"
+    },
+    {
+      "id": "cam",
+      "priceTry": 279.86,
+      "source": "proemtia.com (duvar karo ref.)"
+    },
+    {
+      "id": "cimento",
+      "priceTry": 189.0,
+      "source": "proemtia.com"
+    },
+    {
+      "id": "tugla",
+      "priceTry": 11.7,
+      "source": "proemtia.com"
+    },
+    {
+      "id": "ytong",
+      "priceTry": 85.2,
+      "source": "proemtia.com"
+    },
+    {
+      "id": "alci",
+      "priceTry": 204.0,
+      "source": "proemtia.com"
+    },
+    {
+      "id": "kum",
+      "priceTry": 900.0,
+      "source": "proemtia.com"
+    }
+  ]
+}

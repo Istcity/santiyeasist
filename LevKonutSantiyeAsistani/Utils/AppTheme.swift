@@ -6,6 +6,10 @@ enum AppTheme {
   static let navyLight = Color(red: 0.08, green: 0.17, blue: 0.31)
   static let gold = Color(red: 0.83, green: 0.69, blue: 0.22)
   static let goldMuted = Color(red: 0.72, green: 0.59, blue: 0.18)
+  /// Dikkat / uyarı kartları (minimum satış bedeli vb.)
+  static let alertRed = Color(red: 0.86, green: 0.22, blue: 0.20)
+  static let alertRedMuted = Color(red: 0.72, green: 0.18, blue: 0.16)
+  static let alertRedFill = Color(red: 1.0, green: 0.94, blue: 0.93)
   static let sand = Color(red: 0.93, green: 0.89, blue: 0.84)
   static let cream = Color(red: 0.98, green: 0.96, blue: 0.93)
   static let warmGray = Color(red: 0.55, green: 0.52, blue: 0.48)
@@ -26,6 +30,11 @@ enum AppTheme {
   static let cardFill = Color.white.opacity(0.55)
   static let cardStroke = LinearGradient(
     colors: [gold.opacity(0.55), Color.white.opacity(0.35)],
+    startPoint: .topLeading,
+    endPoint: .bottomTrailing
+  )
+  static let alertCardStroke = LinearGradient(
+    colors: [alertRed.opacity(0.75), alertRedMuted.opacity(0.45)],
     startPoint: .topLeading,
     endPoint: .bottomTrailing
   )
@@ -102,6 +111,54 @@ enum MoneyFormatter {
 
   static func formatTRYPerUnit(_ value: Double, unit: String) -> String {
     "\(formatTRY(value))/\(unit)"
+  }
+
+  static func formatUSDEquivalent(tryAmount: Double, usdToTry: Double) -> String {
+    guard usdToTry > 0 else { return "—" }
+    return "≈ \(formatForeign(tryAmount / usdToTry, symbol: "$"))"
+  }
+
+  static func formatEUREquivalent(tryAmount: Double, eurToTry: Double) -> String {
+    guard eurToTry > 0 else { return "—" }
+    return "≈ \(formatForeign(tryAmount / eurToTry, symbol: "€"))"
+  }
+
+  private static func formatForeign(_ value: Double, symbol: String) -> String {
+    let formatter = NumberFormatter()
+    formatter.numberStyle = .decimal
+    formatter.locale = Locale(identifier: "en_US_POSIX")
+    formatter.minimumFractionDigits = 2
+    formatter.maximumFractionDigits = 2
+    formatter.groupingSeparator = ","
+    formatter.decimalSeparator = "."
+    let num = formatter.string(from: NSNumber(value: value)) ?? String(format: "%.2f", value)
+    return "\(symbol)\(num)"
+  }
+
+  /// Klavye girişi için gruplamasız metin (büyük tutarlar dahil).
+  static func editingString(for value: Double) -> String {
+    guard value != 0 else { return "" }
+    let formatter = NumberFormatter()
+    formatter.locale = Locale(identifier: "en_US_POSIX")
+    formatter.numberStyle = .decimal
+    formatter.minimumFractionDigits = 0
+    formatter.maximumFractionDigits = 2
+    formatter.usesGroupingSeparator = false
+    return formatter.string(from: NSNumber(value: value)) ?? String(value)
+  }
+
+  /// TR formatı: 1.234.567,89 veya 1234567,89
+  static func parseAmount(_ text: String) -> Double? {
+    var cleaned = text
+      .replacingOccurrences(of: "₺", with: "")
+      .replacingOccurrences(of: " ", with: "")
+      .trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !cleaned.isEmpty else { return 0 }
+    if cleaned.contains(",") {
+      cleaned = cleaned.replacingOccurrences(of: ".", with: "")
+      cleaned = cleaned.replacingOccurrences(of: ",", with: ".")
+    }
+    return Double(cleaned)
   }
 
   private static func fallback(_ value: Double) -> String {

@@ -34,6 +34,7 @@ struct ExtendedMaterial: Codable, Identifiable, Equatable {
       ExtendedMaterial(id: "tugla", name: "Tuğla (19'luk)", unit: "adet", priceTry: 8.5, category: .yapisal, updatedAt: Date()),
       ExtendedMaterial(id: "ytong", name: "Ytong Blok", unit: "adet", priceTry: 32, category: .yapisal, updatedAt: Date()),
       ExtendedMaterial(id: "alci", name: "Alçı", unit: "torba", priceTry: 185, category: .kaplama, updatedAt: Date()),
+      ExtendedMaterial(id: "cam", name: "Cam (m²)", unit: "m²", priceTry: 420, category: .kaplama, updatedAt: Date()),
       ExtendedMaterial(id: "boya", name: "Boya (İç Cephe 20L)", unit: "kutu", priceTry: 1800, category: .kaplama, updatedAt: Date()),
       ExtendedMaterial(id: "seramik", name: "Seramik (m²)", unit: "m²", priceTry: 350, category: .kaplama, updatedAt: Date()),
       ExtendedMaterial(id: "pvc_boru", name: "PVC Boru (110mm)", unit: "metre", priceTry: 95, category: .tesisat, updatedAt: Date()),
@@ -73,6 +74,18 @@ final class ExtendedMaterialStore: ObservableObject {
   func resetToDefaults() {
     materials = ExtendedMaterial.defaults
     persist()
+  }
+
+  func applyFeedPrices(_ entries: [MaterialPricesFeed.ExtendedMaterialPriceEntry]?) {
+    guard let entries, !entries.isEmpty else { return }
+    var changed = false
+    for entry in entries {
+      guard let idx = materials.firstIndex(where: { $0.id == entry.id }) else { continue }
+      materials[idx].priceTry = entry.priceTry
+      materials[idx].updatedAt = Date()
+      changed = true
+    }
+    if changed { persist() }
   }
 
   private func persist() {

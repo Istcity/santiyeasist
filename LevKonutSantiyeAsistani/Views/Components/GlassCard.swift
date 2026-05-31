@@ -26,6 +26,33 @@ struct GlassCard<Content: View>: View {
   }
 }
 
+/// Uyarı / dikkat kartı — altın yerine kırmızı vurgu.
+struct AttentionGlassCard<Content: View>: View {
+  let content: Content
+
+  init(@ViewBuilder content: () -> Content) {
+    self.content = content()
+  }
+
+  var body: some View {
+    content
+      .padding(20)
+      .background {
+        RoundedRectangle(cornerRadius: AppTheme.cornerRadiusLarge, style: .continuous)
+          .fill(.ultraThinMaterial)
+          .background(
+            RoundedRectangle(cornerRadius: AppTheme.cornerRadiusLarge, style: .continuous)
+              .fill(AppTheme.alertRedFill.opacity(0.85))
+          )
+          .overlay {
+            RoundedRectangle(cornerRadius: AppTheme.cornerRadiusLarge, style: .continuous)
+              .stroke(AppTheme.alertCardStroke, lineWidth: 1.6)
+          }
+          .shadow(color: AppTheme.alertRed.opacity(0.18), radius: 20, y: 10)
+      }
+  }
+}
+
 struct GlassInsetTile<Content: View>: View {
   let content: Content
 

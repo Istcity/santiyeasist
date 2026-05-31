@@ -1,4 +1,5 @@
 import SwiftUI
+import UserNotifications
 
 struct SettingsView: View {
   @ObservedObject private var settings = AppSettings.shared
@@ -7,6 +8,7 @@ struct SettingsView: View {
   @State private var alertMaterial = "Demir"
   @State private var alertPrice = ""
   @State private var alertDirection: PriceAlert.AlertDirection = .below
+  @State private var notificationStatusText = "Kontrol ediliyor…"
 
   var body: some View {
     NavigationStack {
@@ -16,6 +18,7 @@ struct SettingsView: View {
         ScrollView {
           VStack(spacing: 16) {
             generalSection
+            notificationsSection
             priceAlertSection
             premiumFeaturesSection
             aboutSection
@@ -26,6 +29,7 @@ struct SettingsView: View {
       }
       .navigationTitle("Ayarlar")
       .navigationBarTitleDisplayMode(.inline)
+      .task { await refreshNotificationStatus() }
     }
   }
 
@@ -48,13 +52,10 @@ struct SettingsView: View {
           .pickerStyle(.menu)
           .tint(AppTheme.gold)
           .onChange(of: settings.defaultCity) { _ in
+            guard settings.morningBriefingEnabled else { return }
             Task { await NotificationService.refreshDailyMorningBriefing() }
           }
         }
-
-        Text("Her sabah 08:30'da seçili şehir için hava özeti bildirimi gönderilir. Uygulama kapalıyken de yaklaşık 08:00'de arka planda güncellenir.")
-          .font(.caption2)
-          .foregroundStyle(AppTheme.warmGray)
 
         Toggle(isOn: $settings.hapticEnabled) {
           Label("Dokunsal Geri Bildirim", systemImage: "hand.tap.fill")
@@ -71,6 +72,89 @@ struct SettingsView: View {
         }
         .buttonStyle(.plain)
       }
+    }
+  }
+
+  private var notificationsSection: some View {
+    GlassCard {
+      VStack(alignment: .leading, spacing: 14) {
+        Text("Bildirimler")
+          .font(.headline)
+          .foregroundStyle(AppTheme.navy)
+
+        Toggle(isOn: $settings.morningBriefingEnabled) {
+          Label("Sabah özeti (08:30)", systemImage: "sun.max.fill")
+            .foregroundStyle(AppTheme.navy)
+        }
+        .tint(AppTheme.gold)
+        .onChange(of: settings.morningBriefingEnabled) { enabled in
+          if enabled {
+            NotificationService.requestPermission()
+            Task {
+              await NotificationService.refreshDailyMorningBriefing()
+              MorningBriefingBackgroundRefresh.scheduleNextRefresh()
+              await refreshNotificationStatus()
+            }
+          } else {
+            Task { await refreshNotificationStatus() }
+          }
+        }
+
+        Text(
+          "Seçili şehir için hava durumu özeti ve döviz/beton/demir hatırlatması. Arka planda yaklaşık 08:00'de güncellenir."
+        )
+        .font(.caption2)
+        .foregroundStyle(AppTheme.warmGray)
+
+        Text(notificationStatusText)
+          .font(.caption.weight(.medium))
+          .foregroundStyle(AppTheme.navy)
+
+        HStack(spacing: 10) {
+          Button {
+            NotificationService.requestPermission()
+            Task { await refreshNotificationStatus() }
+          } label: {
+            Text("İzin iste")
+              .font(.caption.weight(.semibold))
+              .frame(maxWidth: .infinity)
+          }
+          .buttonStyle(.bordered)
+          .tint(AppTheme.gold)
+
+          Button {
+            Task {
+              await NotificationService.refreshDailyMorningBriefing()
+              await refreshNotificationStatus()
+            }
+          } label: {
+            Text("Özeti güncelle")
+              .font(.caption.weight(.semibold))
+              .frame(maxWidth: .infinity)
+          }
+          .buttonStyle(.bordered)
+          .tint(AppTheme.navy)
+          .disabled(!settings.morningBriefingEnabled)
+        }
+      }
+    }
+  }
+
+  private func refreshNotificationStatus() async {
+    let settings = await UNUserNotificationCenter.current().notificationSettings()
+    notificationStatusText = switch settings.authorizationStatus {
+    case .authorized:
+      "Sistem bildirim izni: Açık"
+    case .provisional:
+      "Sistem bildirim izni: Geçici"
+    case .denied:
+      "Sistem bildirim izni: Kapalı — iOS Ayarlar'dan açın"
+    case .notDetermined:
+      "Sistem bildirim izni: Henüz istenmedi"
+    case .ephemeral:
+      "Sistem bildirim izni: Geçici oturum"
+    @unknown default:
+      "Sistem bildirim izni: Bilinmiyor"
     }
   }
 
@@ -210,7 +294,7 @@ struct SettingsView: View {
             Text("Şantiye Asist")
               .font(.subheadline.weight(.semibold))
               .foregroundStyle(AppTheme.navy)
-            Text("Sürüm 1.0.0 (4)")
+            Text(AppSettings.versionLabel)
               .font(.caption)
               .foregroundStyle(AppTheme.warmGray)
           }

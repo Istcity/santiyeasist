@@ -29,6 +29,7 @@ struct ProjectDetailView: View {
       ScrollView {
         VStack(spacing: 16) {
           projectInfoSection
+          currencyRatesSection
           customPricesSection
           taxMarginSection
           notesSection
@@ -119,6 +120,51 @@ struct ProjectDetailView: View {
         }
       }
     }
+  }
+
+  @ViewBuilder
+  private var currencyRatesSection: some View {
+    if let snapshot = project.lastCurrencySnapshot
+      ?? project.savedCalculations.first.flatMap(currencySnapshot(from:)) {
+      GlassCard {
+        VStack(alignment: .leading, spacing: 12) {
+          sectionHeader("Kayıt Günü Döviz Kurları", icon: "dollarsign.circle.fill")
+
+          HStack(spacing: 16) {
+            VStack(alignment: .leading, spacing: 4) {
+              Text("USD/TRY")
+                .font(.caption)
+                .foregroundStyle(AppTheme.textSecondary)
+              Text(MoneyFormatter.formatAmount(snapshot.usdToTry))
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(AppTheme.navy)
+            }
+            VStack(alignment: .leading, spacing: 4) {
+              Text("EUR/TRY")
+                .font(.caption)
+                .foregroundStyle(AppTheme.textSecondary)
+              Text(MoneyFormatter.formatAmount(snapshot.eurToTry))
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(AppTheme.navy)
+            }
+            Spacer()
+          }
+
+          Text("Kur tarihi: \(snapshot.fetchedAt.formatted(date: .abbreviated, time: .shortened))")
+            .font(.caption2)
+            .foregroundStyle(AppTheme.warmGray)
+        }
+      }
+    }
+  }
+
+  private func currencySnapshot(from calc: SavedCalculation) -> ProjectCurrencySnapshot? {
+    guard let usd = calc.usdToTry, let eur = calc.eurToTry else { return nil }
+    return ProjectCurrencySnapshot(
+      usdToTry: usd,
+      eurToTry: eur,
+      fetchedAt: calc.currencyFetchedAt ?? calc.date
+    )
   }
 
   private var customPricesSection: some View {
@@ -222,6 +268,13 @@ struct ProjectDetailView: View {
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(AppTheme.gold)
                 }
+              }
+              if let usd = calc.usdToTry, let eur = calc.eurToTry {
+                Text(
+                  "Kur: USD \(MoneyFormatter.formatAmount(usd)) • EUR \(MoneyFormatter.formatAmount(eur))"
+                )
+                .font(.caption2)
+                .foregroundStyle(AppTheme.warmGray)
               }
             }
           }

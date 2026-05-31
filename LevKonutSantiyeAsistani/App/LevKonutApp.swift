@@ -13,7 +13,9 @@ struct LevKonutApp: App {
     init() {
         FirebaseApp.configure()
         MorningBriefingBackgroundRefresh.register()
-        NotificationService.requestPermission()
+        if AppSettings.shared.morningBriefingEnabled {
+            NotificationService.requestPermission()
+        }
     }
 
     var body: some Scene {
@@ -48,12 +50,15 @@ struct LevKonutApp: App {
                 AdManagerService.shared.preloadInterstitial()
                 RewardedAdService.shared.preload()
                 isBootstrapped = true
-                await NotificationService.refreshDailyMorningBriefing()
-                MorningBriefingBackgroundRefresh.scheduleNextRefresh()
+                if appSettings.morningBriefingEnabled {
+                    await NotificationService.refreshDailyMorningBriefing()
+                    MorningBriefingBackgroundRefresh.scheduleNextRefresh()
+                }
             }
             .onChange(of: scenePhase) { phase in
                 guard phase == .background else { return }
                 Task {
+                    guard appSettings.morningBriefingEnabled else { return }
                     await NotificationService.refreshDailyMorningBriefing()
                     MorningBriefingBackgroundRefresh.scheduleNextRefresh()
                 }

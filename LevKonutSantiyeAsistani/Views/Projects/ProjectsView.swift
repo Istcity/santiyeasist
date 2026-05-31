@@ -199,7 +199,7 @@ private struct ProjectCardView: View {
           .font(.caption)
           .foregroundStyle(AppTheme.textSecondary)
 
-          if let lastCalc = project.savedCalculations.last {
+          if let lastCalc = project.savedCalculations.first {
             Text(MoneyFormatter.formatTRY(lastCalc.grandTotalTry))
               .font(.subheadline.weight(.semibold))
               .foregroundStyle(AppTheme.navy)

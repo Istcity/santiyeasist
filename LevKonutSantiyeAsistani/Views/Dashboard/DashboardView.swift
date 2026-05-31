@@ -46,8 +46,13 @@ struct DashboardView: View {
 
               DashboardCostSection(
                 costVM: costVM,
-                manualCostStore: manualCostStore
+                manualCostStore: manualCostStore,
+                currency: viewModel.currency
               )
+
+              InlineAdBanner()
+
+              MinimumKonutSatisCard(costVM: costVM)
 
               InlineAdBanner()
 
@@ -69,6 +74,7 @@ struct DashboardView: View {
     }
     .task {
       inspectionVM.load()
+      costVM.syncFromProjectStore(manualCostStore: manualCostStore)
       await viewModel.load(appState: appState)
       costVM.applyMaterialSnapshot(viewModel.materialSnapshot)
       viewModel.startLivePriceUpdates(appState: appState)
@@ -177,6 +183,7 @@ struct DashboardView: View {
 private struct DashboardCostSection: View {
   @ObservedObject var costVM: CostCalculatorViewModel
   @ObservedObject var manualCostStore: ManualCostStore
+  let currency: CurrencyRates?
 
   var body: some View {
     GlassCard {
@@ -196,8 +203,33 @@ private struct DashboardCostSection: View {
         .font(.caption)
         .foregroundStyle(AppTheme.warmGray)
 
-        field("Proje adı", text: $costVM.projectName, keyboard: .default)
-        
+        if costVM.isProjectNameLocked {
+          GlassInsetTile {
+            HStack {
+              VStack(alignment: .leading, spacing: 4) {
+                Text("Proje")
+                  .font(.caption)
+                  .foregroundStyle(AppTheme.textSecondary)
+                Text(costVM.projectName)
+                  .font(.subheadline.weight(.semibold))
+                  .foregroundStyle(AppTheme.navy)
+              }
+              Spacer()
+              Label("Kayıtlı", systemImage: "folder.fill")
+                .font(.caption2.weight(.medium))
+                .foregroundStyle(AppTheme.gold)
+            }
+          }
+        } else {
+          field("Proje adı", text: $costVM.projectName, keyboard: .default)
+        }
+
+        if let message = costVM.projectSaveMessage {
+          Text(message)
+            .font(.caption)
+            .foregroundStyle(AppTheme.gold)
+        }
+
         VStack(alignment: .leading, spacing: 4) {
           Text("Bina tipi").font(.caption).foregroundStyle(AppTheme.warmGray)
           Picker("Bina tipi", selection: $costVM.buildingType) {
@@ -212,16 +244,29 @@ private struct DashboardCostSection: View {
         field("Taban oturumu (m²)", text: $costVM.footprintText, keyboard: .decimalPad)
         field("Kat sayısı", text: $costVM.floorCountText, keyboard: .numberPad)
         
+        unitPricesSection
+
+        ManualCostEntryCard(store: manualCostStore)
+          .onChange(of: manualCostStore.items) { _ in
+            costVM.recalculateIfNeeded(manualItems: manualCostStore.items, currency: currency)
+          }
+
         HStack(spacing: 12) {
           VStack(alignment: .leading, spacing: 2) {
             Text("KDV %\(Int(costVM.kdvPercent))").font(.caption).foregroundStyle(AppTheme.warmGray)
             Slider(value: $costVM.kdvPercent, in: 0...30, step: 1)
               .tint(AppTheme.gold)
+              .onChange(of: costVM.kdvPercent) { _ in
+                costVM.recalculateIfNeeded(manualItems: manualCostStore.items, currency: currency)
+              }
           }
           VStack(alignment: .leading, spacing: 2) {
             Text("Kar %\(Int(costVM.karMarjiPercent))").font(.caption).foregroundStyle(AppTheme.warmGray)
             Slider(value: $costVM.karMarjiPercent, in: 0...50, step: 1)
               .tint(AppTheme.gold)
+              .onChange(of: costVM.karMarjiPercent) { _ in
+                costVM.recalculateIfNeeded(manualItems: manualCostStore.items, currency: currency)
+              }
           }
         }
 
@@ -231,7 +276,7 @@ private struct DashboardCostSection: View {
 
         HStack(spacing: 10) {
           Button {
-            costVM.calculate(manualItems: manualCostStore.items)
+            costVM.calculate(manualItems: manualCostStore.items, currency: currency)
           } label: {
             HStack {
               if costVM.isCalculating { ProgressView().tint(.white) }
@@ -259,13 +304,57 @@ private struct DashboardCostSection: View {
 
         if let result = costVM.result {
           Divider().overlay(AppTheme.warmGray.opacity(0.25))
-          Text(MoneyFormatter.formatTRY(result.grandTotalTry))
-            .font(.title2.bold())
-            .foregroundStyle(AppTheme.gold)
+
+          VStack(alignment: .leading, spacing: 8) {
+            Text("Toplam maliyet")
+              .font(.caption.weight(.semibold))
+              .foregroundStyle(AppTheme.warmGray)
+            Text(MoneyFormatter.formatTRY(result.grandTotalTry))
+              .font(.title2.bold())
+              .foregroundStyle(AppTheme.gold)
+
+            if let currency {
+              VStack(alignment: .leading, spacing: 2) {
+                Text(MoneyFormatter.formatUSDEquivalent(tryAmount: result.grandTotalTry, usdToTry: currency.usdToTry))
+                  .font(.subheadline.weight(.medium))
+                  .foregroundStyle(AppTheme.navy)
+                Text(MoneyFormatter.formatEUREquivalent(tryAmount: result.grandTotalTry, eurToTry: currency.eurToTry))
+                  .font(.subheadline.weight(.medium))
+                  .foregroundStyle(AppTheme.navy)
+              }
+            }
+
+            GlassInsetTile {
+              HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                  Text("m² maliyet")
+                    .font(.caption)
+                    .foregroundStyle(AppTheme.textSecondary)
+                  Text("\(MoneyFormatter.formatAmount(result.totalBuildAreaM2)) m² toplam alan")
+                    .font(.caption2)
+                    .foregroundStyle(AppTheme.warmGray)
+                }
+                Spacer()
+                Text(MoneyFormatter.formatTRY(result.costPerM2Try))
+                  .font(.headline.bold())
+                  .foregroundStyle(AppTheme.navy)
+                Text("/m²")
+                  .font(.caption)
+                  .foregroundStyle(AppTheme.textSecondary)
+              }
+            }
+          }
 
           ForEach(result.lineItems) { item in
-            HStack {
-              Text(item.label).font(.caption)
+            HStack(alignment: .top) {
+              VStack(alignment: .leading, spacing: 2) {
+                Text(item.label).font(.caption)
+                Text(
+                  "\(MoneyFormatter.formatAmount(item.quantity)) \(item.unit) × \(MoneyFormatter.formatTRY(item.unitPriceTry))"
+                )
+                .font(.caption2)
+                .foregroundStyle(AppTheme.warmGray)
+              }
               Spacer()
               Text(MoneyFormatter.formatTRY(item.totalTry)).font(.caption.bold())
             }
@@ -312,9 +401,30 @@ private struct DashboardCostSection: View {
           }
         }
 
-        Divider().overlay(AppTheme.warmGray.opacity(0.25))
+      }
+    }
+  }
 
-        ManualCostEntryCard(store: manualCostStore)
+  private var unitPricesSection: some View {
+    VStack(alignment: .leading, spacing: 8) {
+      HStack {
+        Text("Birim fiyatlar")
+          .font(.caption.weight(.semibold))
+          .foregroundStyle(AppTheme.warmGray)
+        Spacer()
+        Text("Canlı beton/demir + dokunarak düzenle")
+          .font(.caption2)
+          .foregroundStyle(AppTheme.warmGray)
+      }
+
+      ForEach(costVM.orderedUnitPrices()) { price in
+        UnitPriceEditableRow(
+          price: price,
+          amount: costVM.effectiveUnitPrice(id: price.id, base: price)
+        ) { newValue in
+          costVM.setUnitPrice(id: price.id, value: newValue)
+          costVM.recalculateIfNeeded(manualItems: manualCostStore.items, currency: currency)
+        }
       }
     }
   }
@@ -511,20 +621,111 @@ struct ManualCostEntryCard: View {
         .padding(10)
         .background(Color.white.opacity(0.55))
         .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-      TextField("0,00", value: item.amountTry, format: .number.precision(.fractionLength(2)))
-        .keyboardType(.decimalPad)
-        .multilineTextAlignment(.trailing)
-        .frame(width: 100)
-        .padding(10)
-        .background(Color.white.opacity(0.55))
-        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-        .onChange(of: item.wrappedValue.amountTry) { _ in store.updateItem(item.wrappedValue) }
         .onChange(of: item.wrappedValue.title) { _ in store.updateItem(item.wrappedValue) }
+
+      MoneyAmountField(
+        amount: item.amountTry,
+        placeholder: "Tutar ₺",
+        width: 130
+      ) {
+        store.updateItem(item.wrappedValue)
+      }
+
       Button { store.removeItem(id: item.wrappedValue.id) } label: {
         Image(systemName: "trash").foregroundStyle(.red.opacity(0.75))
       }
       .buttonStyle(.plain)
     }
+  }
+}
+
+// MARK: - Maliyet giriş bileşenleri
+
+private struct MoneyAmountField: View {
+  @Binding var amount: Double
+  let placeholder: String
+  var width: CGFloat = 120
+  let onCommit: () -> Void
+
+  @State private var text = ""
+  @FocusState private var focused: Bool
+
+  var body: some View {
+    TextField(placeholder, text: $text)
+      .keyboardType(.decimalPad)
+      .multilineTextAlignment(.trailing)
+      .frame(width: width)
+      .padding(10)
+      .background(Color.white.opacity(0.55))
+      .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+      .focused($focused)
+      .onAppear { syncFromAmount() }
+      .onChange(of: amount) { _ in
+        if !focused { syncFromAmount() }
+      }
+      .onChange(of: text) { newValue in
+        amount = max(0, MoneyFormatter.parseAmount(newValue) ?? 0)
+        onCommit()
+      }
+  }
+
+  private func syncFromAmount() {
+    text = MoneyFormatter.editingString(for: amount)
+  }
+}
+
+private struct UnitPriceEditableRow: View {
+  let price: UnitPrice
+  let amount: Double
+  let onCommit: (Double) -> Void
+
+  @State private var isEditing = false
+  @State private var draft = ""
+
+  var body: some View {
+    HStack(spacing: 10) {
+      VStack(alignment: .leading, spacing: 2) {
+        Text(price.name)
+          .font(.caption.weight(.medium))
+          .foregroundStyle(AppTheme.navy)
+        Text("Birim: \(price.unit)")
+          .font(.caption2)
+          .foregroundStyle(AppTheme.warmGray)
+      }
+
+      Spacer()
+
+      if isEditing {
+        TextField("Birim fiyat", text: $draft)
+          .keyboardType(.decimalPad)
+          .multilineTextAlignment(.trailing)
+          .frame(width: 110)
+          .padding(8)
+          .background(Color.white.opacity(0.7))
+          .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+
+        Button("Tamam") { commitEdit() }
+          .font(.caption.bold())
+          .foregroundStyle(AppTheme.gold)
+      } else {
+        Text(MoneyFormatter.formatTRYPerUnit(amount, unit: price.unit))
+          .font(.caption.bold())
+          .foregroundStyle(AppTheme.gold)
+          .onTapGesture {
+            draft = MoneyFormatter.editingString(for: amount)
+            isEditing = true
+          }
+      }
+    }
+    .padding(10)
+    .background(Color.white.opacity(0.42))
+    .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+  }
+
+  private func commitEdit() {
+    let parsed = MoneyFormatter.parseAmount(draft) ?? amount
+    onCommit(max(0, parsed))
+    isEditing = false
   }
 }
 

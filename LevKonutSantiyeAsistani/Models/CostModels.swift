@@ -115,6 +115,11 @@ final class ManualCostStore: ObservableObject {
     persist()
   }
 
+  func replaceItems(_ newItems: [ManualCostItem]) {
+    items = newItems
+    persist()
+  }
+
   private func persist() {
     LocalCacheService.shared.save(items, forKey: cacheKey)
   }

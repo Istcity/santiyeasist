@@ -17,6 +17,7 @@ struct SantiyeProject: Codable, Identifiable, Equatable {
   var karMarjiPercent: Double
 
   var savedCalculations: [SavedCalculation]
+  var lastCurrencySnapshot: ProjectCurrencySnapshot?
   var manualItems: [ManualCostItem]
 
   var hakedisItems: [HakedisItem]
@@ -66,6 +67,22 @@ enum BuildingType: String, Codable, CaseIterable, Identifiable {
   }
 }
 
+struct ProjectCurrencySnapshot: Codable, Equatable {
+  let usdToTry: Double
+  let eurToTry: Double
+  let fetchedAt: Date
+
+  init(usdToTry: Double, eurToTry: Double, fetchedAt: Date) {
+    self.usdToTry = usdToTry
+    self.eurToTry = eurToTry
+    self.fetchedAt = fetchedAt
+  }
+
+  init(from rates: CurrencyRates) {
+    self.init(usdToTry: rates.usdToTry, eurToTry: rates.eurToTry, fetchedAt: rates.fetchedAt)
+  }
+}
+
 struct SavedCalculation: Codable, Identifiable, Equatable {
   let id: UUID
   let date: Date
@@ -74,8 +91,16 @@ struct SavedCalculation: Codable, Identifiable, Equatable {
   let totalBuildAreaM2: Double
   let betonPrice: Double
   let demirPrice: Double
+  let usdToTry: Double?
+  let eurToTry: Double?
+  let currencyFetchedAt: Date?
 
-  init(from result: CostCalculationResult, betonPrice: Double, demirPrice: Double) {
+  init(
+    from result: CostCalculationResult,
+    betonPrice: Double,
+    demirPrice: Double,
+    currency: CurrencyRates
+  ) {
     self.id = UUID()
     self.date = Date()
     self.grandTotalTry = result.grandTotalTry
@@ -83,9 +108,23 @@ struct SavedCalculation: Codable, Identifiable, Equatable {
     self.totalBuildAreaM2 = result.totalBuildAreaM2
     self.betonPrice = betonPrice
     self.demirPrice = demirPrice
+    self.usdToTry = currency.usdToTry
+    self.eurToTry = currency.eurToTry
+    self.currencyFetchedAt = currency.fetchedAt
   }
 
-  init(id: UUID = UUID(), date: Date = Date(), grandTotalTry: Double, costPerM2Try: Double, totalBuildAreaM2: Double, betonPrice: Double, demirPrice: Double) {
+  init(
+    id: UUID = UUID(),
+    date: Date = Date(),
+    grandTotalTry: Double,
+    costPerM2Try: Double,
+    totalBuildAreaM2: Double,
+    betonPrice: Double,
+    demirPrice: Double,
+    usdToTry: Double? = nil,
+    eurToTry: Double? = nil,
+    currencyFetchedAt: Date? = nil
+  ) {
     self.id = id
     self.date = date
     self.grandTotalTry = grandTotalTry
@@ -93,6 +132,9 @@ struct SavedCalculation: Codable, Identifiable, Equatable {
     self.totalBuildAreaM2 = totalBuildAreaM2
     self.betonPrice = betonPrice
     self.demirPrice = demirPrice
+    self.usdToTry = usdToTry
+    self.eurToTry = eurToTry
+    self.currencyFetchedAt = currencyFetchedAt
   }
 }
 

@@ -65,10 +65,13 @@ enum CacheKey {
     static let weather = "cache_weather_forecast"
     static let currency = "cache_currency_rates"
     static let materialPrices = "cache_material_prices"
+    static let materialPricesFeed = "cache_material_prices_feed"
 }
 
 enum CacheTTL {
     static let weather: TimeInterval = 3600
     static let currency: TimeInterval = 12 * 3600
     static let materialPrices: TimeInterval = 3600
+    /// Merkezi feed — 10k kullanıcı için seyrek yenileme.
+    static let materialPricesFeed: TimeInterval = 4 * 3600
 }

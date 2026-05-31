@@ -2,6 +2,12 @@ import Foundation
 
 /// Asset JSON + Remote Config (beton/demir) birleşimi.
 enum UnitPriceService {
+    /// Maliyet hesabında kullanılan birim fiyat anahtarları (sıralı).
+    static let costLinePriceIDs = [
+        "excavation", "concrete_c30", "rebar", "wall",
+        "electrical", "mechanical", "finishing", "permits",
+    ]
+
     static func loadPrices(snapshot: MaterialPriceSnapshot) -> [String: UnitPrice] {
         var map = loadBundled()
         map["concrete_c30"] = UnitPrice(
@@ -62,7 +68,7 @@ enum UnitPriceService {
 
 // MARK: - Canlı malzeme fiyatları
 
-/// insaatdemiri.net + döviz endeksli beton.
+/// Merkezi feed (GitHub Actions) → uygulama; yedek: bundle / endeks.
 final class MaterialPriceService {
     static let shared = MaterialPriceService()
 
@@ -93,12 +99,69 @@ final class MaterialPriceService {
             return cached
         }
 
+        let snapshot: MaterialPriceSnapshot
+        if let feed = await loadFeed(forceRefresh: forceRefresh),
+           let city = feed.city(matching: location) {
+            snapshot = MaterialPriceSnapshot(
+                betonM3Fiyat: city.betonC30.priceTry,
+                demirTonFiyat: city.rebar.priceTry,
+                updatedAt: feed.updatedAt,
+                demirSource: city.rebar.source,
+                betonSource: city.betonC30.source,
+                cityLabel: city.cityLabel
+            )
+            await MainActor.run {
+                ExtendedMaterialStore.shared.applyFeedPrices(feed.extended)
+            }
+        } else {
+            snapshot = await legacyFallbackSnapshot(
+                currency: currency,
+                location: location,
+                configFallback: configFallback
+            )
+        }
+
+        cache.save(snapshot, forKey: cacheKey)
+        return snapshot
+    }
+
+    private func loadFeed(forceRefresh: Bool) async -> MaterialPricesFeed? {
+        if !forceRefresh,
+           let cached = cache.loadIfFresh(
+            MaterialPricesFeed.self,
+            forKey: CacheKey.materialPricesFeed,
+            maxAge: CacheTTL.materialPricesFeed
+           ) {
+            return cached
+        }
+
+        if let stale = cache.loadStale(MaterialPricesFeed.self, forKey: CacheKey.materialPricesFeed),
+           !forceRefresh {
+            Task {
+                if let fresh = await MaterialPricesFeedLoader.load(session: session) {
+                    cache.save(fresh, forKey: CacheKey.materialPricesFeed)
+                }
+            }
+            return stale
+        }
+
+        guard let feed = await MaterialPricesFeedLoader.load(session: session) else {
+            return cache.loadStale(MaterialPricesFeed.self, forKey: CacheKey.materialPricesFeed)
+        }
+        cache.save(feed, forKey: CacheKey.materialPricesFeed)
+        return feed
+    }
+
+    private func legacyFallbackSnapshot(
+        currency: CurrencyRates,
+        location: GeoLocation,
+        configFallback: AppConfig
+    ) async -> MaterialPriceSnapshot {
         let demir = await fetchDemirFromWeb(preferredCity: preferredCity(for: location))
         let beton = indexedBetonPrice(usdTry: currency.usdToTry, configFallback: configFallback)
 
-        let snapshot: MaterialPriceSnapshot
         if let demir {
-            snapshot = MaterialPriceSnapshot(
+            return MaterialPriceSnapshot(
                 betonM3Fiyat: beton.price,
                 demirTonFiyat: demir.pricePerTon,
                 updatedAt: Date(),
@@ -106,20 +169,16 @@ final class MaterialPriceService {
                 betonSource: beton.source,
                 cityLabel: demir.city
             )
-        } else {
-            let demirIndexed = indexedDemirPrice(usdTry: currency.usdToTry, configFallback: configFallback)
-            snapshot = MaterialPriceSnapshot(
-                betonM3Fiyat: beton.price,
-                demirTonFiyat: demirIndexed,
-                updatedAt: Date(),
-                demirSource: "USD endeksi",
-                betonSource: beton.source,
-                cityLabel: location.label
-            )
         }
 
-        cache.save(snapshot, forKey: cacheKey)
-        return snapshot
+        return MaterialPriceSnapshot(
+            betonM3Fiyat: beton.price,
+            demirTonFiyat: indexedDemirPrice(usdTry: currency.usdToTry, configFallback: configFallback),
+            updatedAt: Date(),
+            demirSource: "USD endeksi",
+            betonSource: beton.source,
+            cityLabel: location.label
+        )
     }
 
     private struct DemirQuote {

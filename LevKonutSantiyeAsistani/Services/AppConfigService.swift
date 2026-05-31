@@ -24,6 +24,8 @@ final class AppConfigService {
             "beton_m3_fiyat": NSNumber(value: 3500),
             "demir_ton_fiyat": NSNumber(value: 33000),
             "interstitial_ad_frequency": NSNumber(value: 5),
+            "material_prices_json": "" as NSString,
+            "material_prices_url": MaterialPricesFeedLoader.defaultRemoteFeedURL() as NSString,
         ])
 
         do {
@@ -57,5 +59,23 @@ final class AppConfigService {
         }
         current = readConfig()
         return current
+    }
+
+    /// Remote Config'teki JSON feed (boş değilse).
+    func materialPricesFeedFromRemoteConfig() -> MaterialPricesFeed? {
+        let json = remoteConfig.configValue(forKey: "material_prices_json").stringValue
+        guard !json.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+              json != "{}",
+              let data = json.data(using: .utf8) else {
+            return nil
+        }
+        return MaterialPricesFeedLoader.decodeFeed(data)
+    }
+
+    /// Remote Config'teki feed URL (GitHub raw varsayılan).
+    var materialPricesFeedURL: String? {
+        let value = remoteConfig.configValue(forKey: "material_prices_url").stringValue
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        return value.isEmpty ? nil : value
     }
 }

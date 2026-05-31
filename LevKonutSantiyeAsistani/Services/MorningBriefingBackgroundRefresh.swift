@@ -21,7 +21,17 @@ enum MorningBriefingBackgroundRefresh {
     }
   }
 
+  static func cancelScheduledRefresh() {
+    BGTaskScheduler.shared.cancel(taskRequestWithIdentifier: taskIdentifier)
+  }
+
   static func scheduleNextRefresh() {
+    let briefingEnabled =
+      UserDefaults.standard.object(forKey: "settings_morning_briefing") as? Bool ?? true
+    guard briefingEnabled else {
+      cancelScheduledRefresh()
+      return
+    }
     let request = BGAppRefreshTaskRequest(identifier: taskIdentifier)
     request.earliestBeginDate = nextRefreshDate()
 
@@ -47,6 +57,12 @@ enum MorningBriefingBackgroundRefresh {
     }
 
     Task { @MainActor in
+      guard AppSettings.shared.morningBriefingEnabled else {
+        guard !gate.finished else { return }
+        gate.finished = true
+        task.setTaskCompleted(success: true)
+        return
+      }
       await NotificationService.refreshDailyMorningBriefing(useCachedLocationOnly: true)
       guard !gate.finished else { return }
       gate.finished = true

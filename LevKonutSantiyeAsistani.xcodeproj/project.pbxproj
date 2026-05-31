@@ -29,6 +29,7 @@
 		4668BF745CC0004950441188 /* WeatherService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF4626B0F8BE71DBD45A5CC0 /* WeatherService.swift */; };
 		4B83E338E83086915A4C8F91 /* AppConfigService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CBB8D9811F14DD668F7D018 /* AppConfigService.swift */; };
 		4CC086DD06DD13019AE13055 /* LevKonutApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 67E3ECE94CACB295303B079F /* LevKonutApp.swift */; };
+		544DFDDE32FB2D6A569D5AC5 /* MinimumKonutSatisCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = E891CA35F952AA44E4E6DDAD /* MinimumKonutSatisCard.swift */; };
 		5C0D11AD367C154BCFE55E71 /* AppTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9488B1103D30676AABADF670 /* AppTheme.swift */; };
 		62B1DB6C5CA427C1BA9A01CF /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FEDB53F2F8D40B189570AA9 /* AppConfig.swift */; };
 		6365BE5540FF2F3BBA5CCF8B /* CurrencyModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = F88C71B6D038F56E0C70AADD /* CurrencyModels.swift */; };
@@ -55,8 +56,10 @@
 		AA45FC5405F612003EA99426 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29D029660EBFAE04325C9070 /* MainTabView.swift */; };
 		AAC97423979ADE0CE827BA20 /* CurrencyTickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 369A5B4902C8B4EB7250D5D9 /* CurrencyTickerView.swift */; };
 		AEDF83C478D7BCB20FFD667F /* ExtendedMaterialsCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6E5782D4EC0DEA131D6207 /* ExtendedMaterialsCard.swift */; };
+		B54E22F49113587152C9B02B /* material_prices.json in Resources */ = {isa = PBXBuildFile; fileRef = 27D8BBE0D43A1575448BA136 /* material_prices.json */; };
 		C2AAF8DAB2F1F4B9A600B238 /* RewardedAdButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57A7D7D731BB66AB1FB2A041 /* RewardedAdButton.swift */; };
 		D0108F52616ACB63C0F0BA15 /* AppRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4613D48271D2F192B0D38A09 /* AppRoute.swift */; };
+		D27696E0041FAD97A2BA54F4 /* MaterialPricesFeed.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B8EF962B0FA79E624FA1D4A /* MaterialPricesFeed.swift */; };
 		D5784FDEA3EC26A06FE42B48 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = B52D70972100A60BA7BDD13C /* GoogleService-Info.plist */; };
 		DA4C0FA00D249FD244D75284 /* GeoLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = D395D52526DF5D0406C0220D /* GeoLocation.swift */; };
 		DD90678E290CD1FD16718FF5 /* UnitPriceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D1A8A5B8FDB92873068CA35 /* UnitPriceService.swift */; };
@@ -76,6 +79,7 @@
 		1793FD9E435058A275F2D905 /* HakedisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HakedisView.swift; sourceTree = "<group>"; };
 		205F8127B04C851D180363B4 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		26C1CA03B59F18BFAC7D22FB /* SupplierMapView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupplierMapView.swift; sourceTree = "<group>"; };
+		27D8BBE0D43A1575448BA136 /* material_prices.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = material_prices.json; sourceTree = "<group>"; };
 		29D029660EBFAE04325C9070 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
 		2FE48BAC96EE601D91C76267 /* ScreenWithAdsLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenWithAdsLayout.swift; sourceTree = "<group>"; };
 		33EBA1FE2786F49A6A1E41E3 /* default_inspection_fees.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = default_inspection_fees.json; sourceTree = "<group>"; };
@@ -93,6 +97,7 @@
 		57A7D7D731BB66AB1FB2A041 /* RewardedAdButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardedAdButton.swift; sourceTree = "<group>"; };
 		639E4F384D638234D6A896FD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		67E3ECE94CACB295303B079F /* LevKonutApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LevKonutApp.swift; sourceTree = "<group>"; };
+		6B8EF962B0FA79E624FA1D4A /* MaterialPricesFeed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaterialPricesFeed.swift; sourceTree = "<group>"; };
 		6BB1BFFD3983E1D0D0FF9A57 /* AdsBootstrap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdsBootstrap.swift; sourceTree = "<group>"; };
 		729EB156551B530D14E4E128 /* BannerAdView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BannerAdView.swift; sourceTree = "<group>"; };
 		8CBB8D9811F14DD668F7D018 /* AppConfigService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfigService.swift; sourceTree = "<group>"; };
@@ -121,6 +126,7 @@
 		E12AAAA60DC0CD8A552A4228 /* SettingsModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsModel.swift; sourceTree = "<group>"; };
 		E3582FE3CB45A5A8B194DC6A /* MorningBriefingBackgroundRefresh.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MorningBriefingBackgroundRefresh.swift; sourceTree = "<group>"; };
 		E4D3504C073DE091D7B3C13B /* default_unit_prices.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = default_unit_prices.json; sourceTree = "<group>"; };
+		E891CA35F952AA44E4E6DDAD /* MinimumKonutSatisCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MinimumKonutSatisCard.swift; sourceTree = "<group>"; };
 		EAA39D401293BD89F6C87F3B /* LocalCacheService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalCacheService.swift; sourceTree = "<group>"; };
 		EC6E5782D4EC0DEA131D6207 /* ExtendedMaterialsCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtendedMaterialsCard.swift; sourceTree = "<group>"; };
 		F83030016FD52C72E90F1C68 /* CostCalculatorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CostCalculatorService.swift; sourceTree = "<group>"; };
@@ -232,6 +238,7 @@
 			children = (
 				33EBA1FE2786F49A6A1E41E3 /* default_inspection_fees.json */,
 				E4D3504C073DE091D7B3C13B /* default_unit_prices.json */,
+				27D8BBE0D43A1575448BA136 /* material_prices.json */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -246,6 +253,7 @@
 				9C01C4130B678F01BBF276FB /* ExtendedMaterials.swift */,
 				D395D52526DF5D0406C0220D /* GeoLocation.swift */,
 				035C65CE733CD696F3C1EA4D /* InspectionModels.swift */,
+				6B8EF962B0FA79E624FA1D4A /* MaterialPricesFeed.swift */,
 				BFBFE90EFFAE7FC8CB1A4C8A /* ProjectModels.swift */,
 				E12AAAA60DC0CD8A552A4228 /* SettingsModel.swift */,
 				E113E13F9BD32F06832A5B92 /* WeatherModels.swift */,
@@ -269,6 +277,7 @@
 				205F8127B04C851D180363B4 /* DashboardView.swift */,
 				A7966FAC9349FC1ACE314917 /* DateTimeCard.swift */,
 				EC6E5782D4EC0DEA131D6207 /* ExtendedMaterialsCard.swift */,
+				E891CA35F952AA44E4E6DDAD /* MinimumKonutSatisCard.swift */,
 			);
 			path = Dashboard;
 			sourceTree = "<group>";
@@ -447,6 +456,7 @@
 				D5784FDEA3EC26A06FE42B48 /* GoogleService-Info.plist in Resources */,
 				9A4DFBA6A93B9C2F689749A1 /* default_inspection_fees.json in Resources */,
 				311B256A0BB1227F9BB20C4C /* default_unit_prices.json in Resources */,
+				B54E22F49113587152C9B02B /* material_prices.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -491,6 +501,8 @@
 				9A49A4EB73B89232ACFF62CF /* LocalCacheService.swift in Sources */,
 				32C8DEEBAFFB960766C3F7C2 /* LocationService.swift in Sources */,
 				AA45FC5405F612003EA99426 /* MainTabView.swift in Sources */,
+				D27696E0041FAD97A2BA54F4 /* MaterialPricesFeed.swift in Sources */,
+				544DFDDE32FB2D6A569D5AC5 /* MinimumKonutSatisCard.swift in Sources */,
 				F9DA8E33E7AC69D753D709EC /* MorningBriefingBackgroundRefresh.swift in Sources */,
 				2FA1BAC53996969D40762EEA /* NotificationService.swift in Sources */,
 				A5C9C554EF98691FBEAD8D3C /* OnboardingView.swift in Sources */,
@@ -521,7 +533,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 11;
+				CURRENT_PROJECT_VERSION = 20;
 				DEVELOPMENT_TEAM = R9VURFRPRC;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = LevKonutSantiyeAsistani/Info.plist;
@@ -534,7 +546,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.0.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.levkonut.santiye;
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 5.0;
@@ -667,7 +679,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 11;
+				CURRENT_PROJECT_VERSION = 20;
 				DEVELOPMENT_TEAM = R9VURFRPRC;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = LevKonutSantiyeAsistani/Info.plist;
@@ -680,7 +692,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.0.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.levkonut.santiye;
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
