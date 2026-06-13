@@ -90,13 +90,21 @@ final class MaterialPriceService {
     ) async -> MaterialPriceSnapshot {
         let cacheKey = "\(CacheKey.materialPrices)_\(location.label)"
 
+        if forceRefresh {
+            cache.remove(forKey: cacheKey)
+            cache.remove(forKey: CacheKey.materialPricesFeed)
+        }
+
         if !forceRefresh,
            let cached = cache.loadIfFresh(
             MaterialPriceSnapshot.self,
             forKey: cacheKey,
             maxAge: CacheTTL.materialPrices
-        ) {
-            return cached
+        ),
+           !isLegacySnapshot(cached) {
+            return await MainActor.run {
+                MaterialPriceOverridesStore.shared.apply(to: cached)
+            }
         }
 
         let snapshot: MaterialPriceSnapshot
@@ -121,8 +129,18 @@ final class MaterialPriceService {
             )
         }
 
-        cache.save(snapshot, forKey: cacheKey)
-        return snapshot
+        let withOverrides = await MainActor.run {
+            MaterialPriceOverridesStore.shared.apply(to: snapshot)
+        }
+        cache.save(withOverrides, forKey: cacheKey)
+        return withOverrides
+    }
+
+    private func isLegacySnapshot(_ snapshot: MaterialPriceSnapshot) -> Bool {
+        let legacyMarkers = ["endeks", "firebase", "—"]
+        let beton = snapshot.betonSource.lowercased()
+        let demir = snapshot.demirSource.lowercased()
+        return legacyMarkers.contains(where: { beton.contains($0) || demir.contains($0) })
     }
 
     private func loadFeed(forceRefresh: Bool) async -> MaterialPricesFeed? {
@@ -138,14 +156,14 @@ final class MaterialPriceService {
         if let stale = cache.loadStale(MaterialPricesFeed.self, forKey: CacheKey.materialPricesFeed),
            !forceRefresh {
             Task {
-                if let fresh = await MaterialPricesFeedLoader.load(session: session) {
+                if let fresh = await MaterialPricesFeedLoader.load(session: session, forceRefresh: true) {
                     cache.save(fresh, forKey: CacheKey.materialPricesFeed)
                 }
             }
             return stale
         }
 
-        guard let feed = await MaterialPricesFeedLoader.load(session: session) else {
+        guard let feed = await MaterialPricesFeedLoader.load(session: session, forceRefresh: forceRefresh) else {
             return cache.loadStale(MaterialPricesFeed.self, forKey: CacheKey.materialPricesFeed)
         }
         cache.save(feed, forKey: CacheKey.materialPricesFeed)

@@ -13,8 +13,13 @@ import UIKit
 final class AdManagerService: NSObject {
     static let shared = AdManagerService()
 
-    private let bannerTestID = "ca-app-pub-3940256099942544/2934735716"
-    private let interstitialTestID = "ca-app-pub-3940256099942544/4411468910"
+    #if DEBUG
+    private let bannerAdUnitID = "ca-app-pub-3940256099942544/2934735716"
+    private let interstitialAdUnitID = "ca-app-pub-3940256099942544/4411468910"
+    #else
+    private let bannerAdUnitID = "ca-app-pub-8420759480841389/3740847767"
+    private let interstitialAdUnitID = "ca-app-pub-8420759480841389/2427766096"
+    #endif
 
     private var interstitial: GADInterstitialAd?
     private var isLoadingInterstitial = false
@@ -29,7 +34,7 @@ final class AdManagerService: NSObject {
         isLoadingInterstitial = true
 
         GADInterstitialAd.load(
-            withAdUnitID: interstitialTestID,
+            withAdUnitID: interstitialAdUnitID,
             request: GADRequest()
         ) { [weak self] ad, _ in
             Task { @MainActor in
@@ -57,7 +62,7 @@ final class AdManagerService: NSObject {
         guard AdsBootstrap.isReady else { return nil }
 
         let banner = GADBannerView(adSize: GADAdSizeBanner)
-        banner.adUnitID = bannerTestID
+        banner.adUnitID = bannerAdUnitID
         banner.rootViewController = rootViewController
         banner.load(GADRequest())
         return banner

@@ -53,8 +53,14 @@ final class CostCalculatorViewModel: ObservableObject {
     func setUnitPrice(id: String, value: Double) {
         if value > 0 {
             customUnitPrices[id] = value
+            if id == "concrete_c30" || id == "rebar" {
+                MaterialPriceOverridesStore.shared.set(id: id, price: value)
+            }
         } else {
             customUnitPrices.removeValue(forKey: id)
+            if id == "concrete_c30" || id == "rebar" {
+                MaterialPriceOverridesStore.shared.remove(id: id)
+            }
         }
         saveCustomUnitPrices()
     }

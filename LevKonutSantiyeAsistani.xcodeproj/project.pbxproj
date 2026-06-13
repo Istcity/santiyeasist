@@ -43,6 +43,7 @@
 		8173DF4944A16EC32304008D /* HakedisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1793FD9E435058A275F2D905 /* HakedisView.swift */; };
 		819745A532FAA3A9186A99E1 /* GlassCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54AF51FC294F1E34F4CEC46C /* GlassCard.swift */; };
 		93A3012C329845E4736F596A /* ExtendedMaterials.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C01C4130B678F01BBF276FB /* ExtendedMaterials.swift */; };
+		98C3E484693A02826BC88CEF /* MaterialPriceOverridesStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B289C6E4CC780F23E9A06303 /* MaterialPriceOverridesStore.swift */; };
 		9A49A4EB73B89232ACFF62CF /* LocalCacheService.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA39D401293BD89F6C87F3B /* LocalCacheService.swift */; };
 		9A4DFBA6A93B9C2F689749A1 /* default_inspection_fees.json in Resources */ = {isa = PBXBuildFile; fileRef = 33EBA1FE2786F49A6A1E41E3 /* default_inspection_fees.json */; };
 		9AE0F24AA21AB97CFEF2D5DE /* InspectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C35C5532E70F25BFD4FFD094 /* InspectionService.swift */; };
@@ -116,6 +117,7 @@
 		AAD5C31BB90B82B169C16AE0 /* CurrencyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyService.swift; sourceTree = "<group>"; };
 		AD2D415302737178C7D2EDFB /* LocationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationService.swift; sourceTree = "<group>"; };
 		AE0E08F00DD1E6287DBEBEFE /* PuantajView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PuantajView.swift; sourceTree = "<group>"; };
+		B289C6E4CC780F23E9A06303 /* MaterialPriceOverridesStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaterialPriceOverridesStore.swift; sourceTree = "<group>"; };
 		B52D70972100A60BA7BDD13C /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		B89DD6F6BDAFC33CAA3ADD79 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		BFBFE90EFFAE7FC8CB1A4C8A /* ProjectModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectModels.swift; sourceTree = "<group>"; };
@@ -327,6 +329,7 @@
 				C35C5532E70F25BFD4FFD094 /* InspectionService.swift */,
 				EAA39D401293BD89F6C87F3B /* LocalCacheService.swift */,
 				AD2D415302737178C7D2EDFB /* LocationService.swift */,
+				B289C6E4CC780F23E9A06303 /* MaterialPriceOverridesStore.swift */,
 				E3582FE3CB45A5A8B194DC6A /* MorningBriefingBackgroundRefresh.swift */,
 				964230BB3BB84DF7500FACDC /* NotificationService.swift */,
 				F8B4E61419962324B733621B /* ProjectStore.swift */,
@@ -501,6 +504,7 @@
 				9A49A4EB73B89232ACFF62CF /* LocalCacheService.swift in Sources */,
 				32C8DEEBAFFB960766C3F7C2 /* LocationService.swift in Sources */,
 				AA45FC5405F612003EA99426 /* MainTabView.swift in Sources */,
+				98C3E484693A02826BC88CEF /* MaterialPriceOverridesStore.swift in Sources */,
 				D27696E0041FAD97A2BA54F4 /* MaterialPricesFeed.swift in Sources */,
 				544DFDDE32FB2D6A569D5AC5 /* MinimumKonutSatisCard.swift in Sources */,
 				F9DA8E33E7AC69D753D709EC /* MorningBriefingBackgroundRefresh.swift in Sources */,
@@ -533,7 +537,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 21;
+				CURRENT_PROJECT_VERSION = 24;
 				DEVELOPMENT_TEAM = R9VURFRPRC;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = LevKonutSantiyeAsistani/Info.plist;
@@ -546,7 +550,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.3;
+				MARKETING_VERSION = 1.0.6;
 				PRODUCT_BUNDLE_IDENTIFIER = com.levkonut.santiye;
 				SDKROOT = iphoneos;
 				SWIFT_VERSION = 5.0;
@@ -679,7 +683,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 21;
+				CURRENT_PROJECT_VERSION = 24;
 				DEVELOPMENT_TEAM = R9VURFRPRC;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = LevKonutSantiyeAsistani/Info.plist;
@@ -692,7 +696,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.3;
+				MARKETING_VERSION = 1.0.6;
 				PRODUCT_BUNDLE_IDENTIFIER = com.levkonut.santiye;
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";

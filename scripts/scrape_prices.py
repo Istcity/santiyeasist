@@ -56,6 +56,18 @@ CITY_BETON_MULTIPLIERS: dict[str, float] = {
     "canakkale_biga": 1.0,
 }
 
+# Proemtia'da kategori yoksa USD endeksi ile güncellenen malzemeler (referans ₺, USD=35)
+INDEXED_MATERIAL_BASES: dict[str, float] = {
+    "cakil": 380,
+    "boya": 1800,
+    "pvc_boru": 95,
+    "bakir_kablo": 48,
+    "ppr_boru": 35,
+    "izolasyon": 120,
+    "su_yalitim": 85,
+    "dere_oluk": 250,
+}
+
 
 @dataclass
 class ProductQuote:
@@ -233,6 +245,20 @@ def scrape_proemtia_extended() -> list[dict[str, Any]]:
     return extended
 
 
+def fill_indexed_extended(extended: list[dict[str, Any]], usd_try: float) -> None:
+    existing = {item["id"] for item in extended}
+    factor = usd_try / 35.0
+    for material_id, base_try in INDEXED_MATERIAL_BASES.items():
+        if material_id in existing:
+            continue
+        append_extended(
+            extended,
+            material_id,
+            round(base_try * factor, 2),
+            "USD endeksi",
+        )
+
+
 def fetch_demir_by_city() -> dict[str, float]:
     url = "https://www.insaatdemiri.net/"
     resp = requests.get(url, headers={"User-Agent": USER_AGENT}, timeout=TIMEOUT)
@@ -357,6 +383,7 @@ def build_feed() -> dict[str, Any]:
 
     # Proemtia kategorilerinden genişletilmiş malzemeler
     extended = scrape_proemtia_extended()
+    fill_indexed_extended(extended, usd_try)
     if not extended:
         extended = [
             {"id": "cimento", "priceTry": round(210 * (usd_try / 35.0), 2), "source": "USD endeksi"},

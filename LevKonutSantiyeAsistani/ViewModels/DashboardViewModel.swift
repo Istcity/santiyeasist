@@ -43,7 +43,8 @@ final class DashboardViewModel: ObservableObject {
     materialSnapshot = await materialService.fetchLivePrices(
       currency: rates,
       location: location,
-      configFallback: config
+      configFallback: config,
+      forceRefresh: true
     )
 
     do {
@@ -91,5 +92,20 @@ final class DashboardViewModel: ObservableObject {
       forceRefresh: true
     )
     appState.updateAdFrequency(from: config)
+  }
+
+  func setManualBetonPrice(_ price: Double) {
+    MaterialPriceOverridesStore.shared.set(id: MaterialPriceOverridesStore.liveBetonKey, price: price)
+    materialSnapshot = MaterialPriceOverridesStore.shared.apply(to: materialSnapshot)
+  }
+
+  func setManualDemirPrice(_ price: Double) {
+    MaterialPriceOverridesStore.shared.set(id: MaterialPriceOverridesStore.liveRebarKey, price: price)
+    materialSnapshot = MaterialPriceOverridesStore.shared.apply(to: materialSnapshot)
+  }
+
+  func clearManualLiveOverride(for key: String, appState: AppState) async {
+    MaterialPriceOverridesStore.shared.remove(id: key)
+    await refreshMaterialPrices(appState: appState)
   }
 }

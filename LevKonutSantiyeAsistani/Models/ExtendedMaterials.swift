@@ -54,12 +54,18 @@ final class ExtendedMaterialStore: ObservableObject {
   @Published var materials: [ExtendedMaterial]
 
   private let cacheKey = "extended_materials"
+  private var lastFeedPrices: [String: Double] = [:]
 
   private init() {
     if let saved: [ExtendedMaterial] = LocalCacheService.shared.load([ExtendedMaterial].self, forKey: cacheKey) {
       materials = saved
     } else {
       materials = ExtendedMaterial.defaults
+    }
+    if let feed = MaterialPricesFeedLoader.loadBundled(),
+       let entries = feed.extended {
+      applyFeedPrices(entries)
+    } else if materials == ExtendedMaterial.defaults {
       persist()
     }
   }
@@ -68,18 +74,45 @@ final class ExtendedMaterialStore: ObservableObject {
     guard let idx = materials.firstIndex(where: { $0.id == id }) else { return }
     materials[idx].priceTry = newPrice
     materials[idx].updatedAt = Date()
+    MaterialPriceOverridesStore.shared.set(id: id, price: newPrice)
     persist()
+  }
+
+  func clearManualOverride(id: String) {
+    MaterialPriceOverridesStore.shared.remove(id: id)
+    guard let idx = materials.firstIndex(where: { $0.id == id }),
+          let feedPrice = lastFeedPrices[id] else { return }
+    materials[idx].priceTry = feedPrice
+    materials[idx].updatedAt = Date()
+    persist()
+  }
+
+  func isManualOverride(id: String) -> Bool {
+    MaterialPriceOverridesStore.shared.isOverridden(id)
   }
 
   func resetToDefaults() {
+    for material in materials {
+      MaterialPriceOverridesStore.shared.remove(id: material.id)
+    }
     materials = ExtendedMaterial.defaults
-    persist()
+    if let feed = MaterialPricesFeedLoader.loadBundled(),
+       let entries = feed.extended {
+      applyFeedPrices(entries, forceAll: true)
+    } else {
+      persist()
+    }
   }
 
-  func applyFeedPrices(_ entries: [MaterialPricesFeed.ExtendedMaterialPriceEntry]?) {
+  func applyFeedPrices(
+    _ entries: [MaterialPricesFeed.ExtendedMaterialPriceEntry]?,
+    forceAll: Bool = false
+  ) {
     guard let entries, !entries.isEmpty else { return }
     var changed = false
     for entry in entries {
+      lastFeedPrices[entry.id] = entry.priceTry
+      if !forceAll, MaterialPriceOverridesStore.shared.isOverridden(entry.id) { continue }
       guard let idx = materials.firstIndex(where: { $0.id == entry.id }) else { continue }
       materials[idx].priceTry = entry.priceTry
       materials[idx].updatedAt = Date()

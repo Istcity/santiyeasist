@@ -50,19 +50,25 @@ enum MaterialPricesFeedLoader {
   private static let defaultRemoteURL =
     "https://raw.githubusercontent.com/Istcity/santiyeasist/main/data/material_prices.json"
 
-  /// Öncelik: Remote Config JSON → Remote Config URL → bundle → nil
-  static func load(session: URLSession = .shared) async -> MaterialPricesFeed? {
-    if let fromRC = AppConfigService.shared.materialPricesFeedFromRemoteConfig() {
-      return fromRC
-    }
+  /// Tüm kaynaklardan en güncel feed'i seçer (URL, Remote Config, bundle).
+  static func load(session: URLSession = .shared, forceRefresh: Bool = false) async -> MaterialPricesFeed? {
+    var candidates: [MaterialPricesFeed] = []
 
     if let urlString = AppConfigService.shared.materialPricesFeedURL,
        let url = URL(string: urlString),
-       let feed = await fetchFeed(from: url, session: session) {
-      return feed
+       let feed = await fetchFeed(from: url, session: session, forceRefresh: forceRefresh) {
+      candidates.append(feed)
     }
 
-    return loadBundled()
+    if let fromRC = AppConfigService.shared.materialPricesFeedFromRemoteConfig() {
+      candidates.append(fromRC)
+    }
+
+    if let bundled = loadBundled() {
+      candidates.append(bundled)
+    }
+
+    return candidates.max(by: { $0.updatedAt < $1.updatedAt })
   }
 
   static func loadBundled() -> MaterialPricesFeed? {
@@ -73,10 +79,23 @@ enum MaterialPricesFeedLoader {
     return decodeFeed(data)
   }
 
-  static func fetchFeed(from url: URL, session: URLSession) async -> MaterialPricesFeed? {
+  static func fetchFeed(
+    from url: URL,
+    session: URLSession,
+    forceRefresh: Bool = false
+  ) async -> MaterialPricesFeed? {
     do {
-      var request = URLRequest(url: url)
+      var requestURL = url
+      if forceRefresh, var components = URLComponents(url: url, resolvingAgainstBaseURL: false) {
+        var items = (components.queryItems ?? []).filter { $0.name != "t" }
+        items.append(URLQueryItem(name: "t", value: String(Int(Date().timeIntervalSince1970))))
+        components.queryItems = items
+        if let busted = components.url { requestURL = busted }
+      }
+
+      var request = URLRequest(url: requestURL)
       request.setValue("SantiyeAsist/1.0", forHTTPHeaderField: "User-Agent")
+      request.cachePolicy = forceRefresh ? .reloadIgnoringLocalCacheData : .useProtocolCachePolicy
       request.timeoutInterval = 25
       let (data, response) = try await session.data(for: request)
       guard let http = response as? HTTPURLResponse, http.statusCode == 200 else { return nil }

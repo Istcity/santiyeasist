@@ -6,7 +6,11 @@ import UIKit
 final class RewardedAdService: NSObject, ObservableObject {
   static let shared = RewardedAdService()
 
-  private let rewardedTestID = "ca-app-pub-3940256099942544/1712485313"
+  #if DEBUG
+  private let rewardedAdUnitID = "ca-app-pub-3940256099942544/1712485313"
+  #else
+  private let rewardedAdUnitID = "ca-app-pub-8420759480841389/7985146855"
+  #endif
   private var rewardedAd: GADRewardedAd?
   private var isLoading = false
   private var pendingCompletion: ((Bool) -> Void)?
@@ -68,7 +72,7 @@ final class RewardedAdService: NSObject, ObservableObject {
     guard AdsBootstrap.isReady, !isLoading, rewardedAd == nil else { return }
     isLoading = true
 
-    GADRewardedAd.load(withAdUnitID: rewardedTestID, request: GADRequest()) { [weak self] ad, _ in
+    GADRewardedAd.load(withAdUnitID: rewardedAdUnitID, request: GADRequest()) { [weak self] ad, _ in
       Task { @MainActor in
         self?.isLoading = false
         self?.rewardedAd = ad

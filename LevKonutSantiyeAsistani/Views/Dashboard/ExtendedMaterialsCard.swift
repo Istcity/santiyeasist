@@ -4,6 +4,7 @@ struct ExtendedMaterialsCard: View {
   @ObservedObject private var store = ExtendedMaterialStore.shared
   @State private var selectedCategory: ExtendedMaterial.MaterialCategory?
   @State private var isExpanded = false
+  @State private var editingMaterialID: String?
 
   private var filtered: [ExtendedMaterial] {
     if let cat = selectedCategory {
@@ -22,6 +23,9 @@ struct ExtendedMaterialsCard: View {
           Image(systemName: "shippingbox.fill")
             .foregroundStyle(AppTheme.gold)
           Spacer()
+          Text("Dokunarak düzenle")
+            .font(.caption2)
+            .foregroundStyle(AppTheme.warmGray)
           Button {
             withAnimation { isExpanded.toggle() }
           } label: {
@@ -42,27 +46,24 @@ struct ExtendedMaterialsCard: View {
           }
 
           ForEach(filtered) { material in
-            HStack {
-              Image(systemName: material.category.icon)
-                .foregroundStyle(AppTheme.gold)
-                .frame(width: 24)
-              VStack(alignment: .leading, spacing: 2) {
-                Text(material.name)
-                  .font(.subheadline.weight(.medium))
-                  .foregroundStyle(AppTheme.navy)
-                Text(material.unit)
-                  .font(.caption2)
-                  .foregroundStyle(AppTheme.warmGray)
+            ExtendedMaterialPriceRow(
+              material: material,
+              isManual: store.isManualOverride(id: material.id),
+              isEditing: editingMaterialID == material.id,
+              onStartEdit: { editingMaterialID = material.id },
+              onCommit: { newPrice in
+                store.updatePrice(id: material.id, newPrice: newPrice)
+                editingMaterialID = nil
+              },
+              onCancel: { editingMaterialID = nil },
+              onResetToLive: {
+                store.clearManualOverride(id: material.id)
+                editingMaterialID = nil
               }
-              Spacer()
-              Text(MoneyFormatter.formatTRY(material.priceTry))
-                .font(.subheadline.bold())
-                .foregroundStyle(AppTheme.charcoal)
-            }
-            .padding(.vertical, 4)
+            )
           }
         } else {
-          Text("\(store.materials.count) malzeme kaydı")
+          Text("\(store.materials.count) malzeme • canlı güncelleme + manuel düzenleme")
             .font(.caption)
             .foregroundStyle(AppTheme.warmGray)
         }
@@ -86,5 +87,89 @@ struct ExtendedMaterialsCard: View {
         .foregroundStyle(isSelected ? .white : AppTheme.navy)
     }
     .buttonStyle(.plain)
+  }
+}
+
+private struct ExtendedMaterialPriceRow: View {
+  let material: ExtendedMaterial
+  let isManual: Bool
+  let isEditing: Bool
+  let onStartEdit: () -> Void
+  let onCommit: (Double) -> Void
+  let onCancel: () -> Void
+  let onResetToLive: () -> Void
+
+  @State private var draft = ""
+
+  var body: some View {
+    HStack(spacing: 8) {
+      Image(systemName: material.category.icon)
+        .foregroundStyle(AppTheme.gold)
+        .frame(width: 24)
+
+      VStack(alignment: .leading, spacing: 2) {
+        HStack(spacing: 6) {
+          Text(material.name)
+            .font(.subheadline.weight(.medium))
+            .foregroundStyle(AppTheme.navy)
+          if isManual {
+            Text("Manuel")
+              .font(.caption2.weight(.semibold))
+              .padding(.horizontal, 6)
+              .padding(.vertical, 2)
+              .background(Capsule().fill(AppTheme.gold.opacity(0.25)))
+              .foregroundStyle(AppTheme.navy)
+          }
+        }
+        Text(material.unit)
+          .font(.caption2)
+          .foregroundStyle(AppTheme.warmGray)
+      }
+
+      Spacer()
+
+      if isEditing {
+        TextField("Fiyat", text: $draft)
+          .keyboardType(.decimalPad)
+          .multilineTextAlignment(.trailing)
+          .frame(width: 100)
+          .padding(8)
+          .background(Color.white.opacity(0.7))
+          .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+
+        Button("OK") {
+          let parsed = MoneyFormatter.parseAmount(draft) ?? material.priceTry
+          onCommit(max(0, parsed))
+        }
+        .font(.caption.bold())
+        .foregroundStyle(AppTheme.gold)
+
+        Button {
+          onCancel()
+        } label: {
+          Image(systemName: "xmark.circle.fill")
+            .foregroundStyle(AppTheme.warmGray)
+        }
+        .buttonStyle(.plain)
+      } else {
+        Text(MoneyFormatter.formatTRY(material.priceTry))
+          .font(.subheadline.bold())
+          .foregroundStyle(isManual ? AppTheme.gold : AppTheme.charcoal)
+          .onTapGesture {
+            draft = MoneyFormatter.editingString(for: material.priceTry)
+            onStartEdit()
+          }
+
+        if isManual {
+          Button(action: onResetToLive) {
+            Image(systemName: "arrow.counterclockwise")
+              .font(.caption)
+              .foregroundStyle(AppTheme.warmGray)
+          }
+          .buttonStyle(.plain)
+        }
+      }
+    }
+    .padding(.vertical, 4)
   }
 }

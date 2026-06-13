@@ -72,6 +72,6 @@ enum CacheTTL {
     static let weather: TimeInterval = 3600
     static let currency: TimeInterval = 12 * 3600
     static let materialPrices: TimeInterval = 3600
-    /// Merkezi feed — 10k kullanıcı için seyrek yenileme.
-    static let materialPricesFeed: TimeInterval = 4 * 3600
+    /// Merkezi feed — saatlik yenileme.
+    static let materialPricesFeed: TimeInterval = 3600
 }

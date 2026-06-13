@@ -31,7 +31,33 @@ struct DashboardView: View {
 
               LiveMaterialPricesCard(
                 snapshot: viewModel.materialSnapshot,
-                isRefreshing: viewModel.isRefreshingPrices
+                isRefreshing: viewModel.isRefreshingPrices,
+                onEditBeton: { price in
+                  viewModel.setManualBetonPrice(price)
+                  costVM.setUnitPrice(id: "concrete_c30", value: price)
+                },
+                onEditDemir: { price in
+                  viewModel.setManualDemirPrice(price)
+                  costVM.setUnitPrice(id: "rebar", value: price)
+                },
+                onResetBeton: {
+                  Task {
+                    await viewModel.clearManualLiveOverride(
+                      for: MaterialPriceOverridesStore.liveBetonKey,
+                      appState: appState
+                    )
+                    costVM.setUnitPrice(id: "concrete_c30", value: 0)
+                  }
+                },
+                onResetDemir: {
+                  Task {
+                    await viewModel.clearManualLiveOverride(
+                      for: MaterialPriceOverridesStore.liveRebarKey,
+                      appState: appState
+                    )
+                    costVM.setUnitPrice(id: "rebar", value: 0)
+                  }
+                }
               )
 
               InlineAdBanner()
@@ -505,8 +531,17 @@ private struct DashboardInspectionSection: View {
 struct LiveMaterialPricesCard: View {
   let snapshot: MaterialPriceSnapshot
   let isRefreshing: Bool
+  var onEditBeton: (Double) -> Void = { _ in }
+  var onEditDemir: (Double) -> Void = { _ in }
+  var onResetBeton: () -> Void = {}
+  var onResetDemir: () -> Void = {}
 
+  @ObservedObject private var overrides = MaterialPriceOverridesStore.shared
   @State private var pulse = false
+  @State private var editingBeton = false
+  @State private var editingDemir = false
+  @State private var betonDraft = ""
+  @State private var demirDraft = ""
 
   private var betonProgress: Double { min(snapshot.betonM3Fiyat / 6000, 1) }
   private var demirProgress: Double { min(snapshot.demirTonFiyat / 50000, 1) }
@@ -536,16 +571,60 @@ struct LiveMaterialPricesCard: View {
         }
 
         if let city = snapshot.cityLabel {
-          Text("\(city) • \(relativeUpdateText)")
+          Text("\(city) • \(relativeUpdateText) • dokunarak düzenle")
             .font(.caption)
             .foregroundStyle(AppTheme.warmGray)
         } else {
-          Text(relativeUpdateText).font(.caption).foregroundStyle(AppTheme.warmGray)
+          Text("\(relativeUpdateText) • dokunarak düzenle")
+            .font(.caption)
+            .foregroundStyle(AppTheme.warmGray)
         }
 
         HStack(spacing: 14) {
-          materialTile(title: "Beton", unit: "m³", price: snapshot.betonM3Fiyat, progress: betonProgress, source: snapshot.betonSource, icon: "cube.fill")
-          materialTile(title: "Demir", unit: "ton", price: snapshot.demirTonFiyat, progress: demirProgress, source: snapshot.demirSource, icon: "square.stack.3d.up.fill")
+          materialTile(
+            title: "Beton",
+            unit: "m³",
+            price: snapshot.betonM3Fiyat,
+            progress: betonProgress,
+            source: snapshot.betonSource,
+            icon: "cube.fill",
+            isManual: overrides.isOverridden(MaterialPriceOverridesStore.liveBetonKey),
+            isEditing: editingBeton,
+            draft: $betonDraft,
+            onStartEdit: {
+              betonDraft = MoneyFormatter.editingString(for: snapshot.betonM3Fiyat)
+              editingBeton = true
+              editingDemir = false
+            },
+            onCommit: {
+              let parsed = MoneyFormatter.parseAmount(betonDraft) ?? snapshot.betonM3Fiyat
+              onEditBeton(max(0, parsed))
+              editingBeton = false
+            },
+            onReset: onResetBeton
+          )
+          materialTile(
+            title: "Demir",
+            unit: "ton",
+            price: snapshot.demirTonFiyat,
+            progress: demirProgress,
+            source: snapshot.demirSource,
+            icon: "square.stack.3d.up.fill",
+            isManual: overrides.isOverridden(MaterialPriceOverridesStore.liveRebarKey),
+            isEditing: editingDemir,
+            draft: $demirDraft,
+            onStartEdit: {
+              demirDraft = MoneyFormatter.editingString(for: snapshot.demirTonFiyat)
+              editingDemir = true
+              editingBeton = false
+            },
+            onCommit: {
+              let parsed = MoneyFormatter.parseAmount(demirDraft) ?? snapshot.demirTonFiyat
+              onEditDemir(max(0, parsed))
+              editingDemir = false
+            },
+            onReset: onResetDemir
+          )
         }
       }
     }
@@ -559,16 +638,57 @@ struct LiveMaterialPricesCard: View {
     return "\(seconds / 3600) sa önce"
   }
 
-  private func materialTile(title: String, unit: String, price: Double, progress: Double, source: String, icon: String) -> some View {
+  private func materialTile(
+    title: String,
+    unit: String,
+    price: Double,
+    progress: Double,
+    source: String,
+    icon: String,
+    isManual: Bool,
+    isEditing: Bool,
+    draft: Binding<String>,
+    onStartEdit: @escaping () -> Void,
+    onCommit: @escaping () -> Void,
+    onReset: @escaping () -> Void
+  ) -> some View {
     VStack(spacing: 8) {
       ZStack {
         CircularGaugeView(progress: progress, lineWidth: 9).frame(width: 72, height: 72)
         Image(systemName: icon).font(.caption).foregroundStyle(AppTheme.gold)
       }
       Text(title).font(.caption.weight(.semibold)).foregroundStyle(AppTheme.warmGray)
-      Text(MoneyFormatter.formatTRY(price)).font(.subheadline.bold()).foregroundStyle(AppTheme.charcoal)
+
+      if isEditing {
+        TextField("Fiyat", text: draft)
+          .keyboardType(.decimalPad)
+          .multilineTextAlignment(.center)
+          .font(.caption.bold())
+          .padding(6)
+          .background(Color.white.opacity(0.8))
+          .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+        Button("Kaydet", action: onCommit)
+          .font(.caption2.bold())
+          .foregroundStyle(AppTheme.gold)
+      } else {
+        Text(MoneyFormatter.formatTRY(price))
+          .font(.subheadline.bold())
+          .foregroundStyle(isManual ? AppTheme.gold : AppTheme.charcoal)
+          .onTapGesture(perform: onStartEdit)
+      }
+
       Text("/ \(unit)").font(.caption2).foregroundStyle(AppTheme.warmGray)
-      Text(source).font(.caption2).foregroundStyle(AppTheme.warmGray).lineLimit(1)
+      HStack(spacing: 4) {
+        Text(source).font(.caption2).foregroundStyle(AppTheme.warmGray).lineLimit(1)
+        if isManual {
+          Button(action: onReset) {
+            Image(systemName: "arrow.counterclockwise")
+              .font(.caption2)
+          }
+          .buttonStyle(.plain)
+          .foregroundStyle(AppTheme.warmGray)
+        }
+      }
     }
     .frame(maxWidth: .infinity)
     .padding(.vertical, 8)

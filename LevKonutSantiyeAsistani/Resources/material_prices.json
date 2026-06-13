@@ -1,7 +1,7 @@
 {
   "version": 2,
-  "updatedAt": "2026-05-31T14:57:51.250622+00:00",
-  "usdTry": 45.887,
+  "updatedAt": "2026-06-13T10:46:20.585091+00:00",
+  "usdTry": 46.2771,
   "cities": [
     {
       "cityKey": "istanbul",
@@ -77,17 +77,17 @@
   "extended": [
     {
       "id": "seramik",
-      "priceTry": 212.96,
+      "priceTry": 250.0,
       "source": "proemtia.com"
     },
     {
       "id": "cam",
-      "priceTry": 279.86,
+      "priceTry": 322.22,
       "source": "proemtia.com (duvar karo ref.)"
     },
     {
       "id": "cimento",
-      "priceTry": 189.0,
+      "priceTry": 192.0,
       "source": "proemtia.com"
     },
     {
@@ -97,18 +97,58 @@
     },
     {
       "id": "ytong",
-      "priceTry": 85.2,
+      "priceTry": 81.33,
       "source": "proemtia.com"
     },
     {
       "id": "alci",
-      "priceTry": 204.0,
+      "priceTry": 215.5,
       "source": "proemtia.com"
     },
     {
       "id": "kum",
       "priceTry": 900.0,
       "source": "proemtia.com"
+    },
+    {
+      "id": "cakil",
+      "priceTry": 502.44,
+      "source": "USD endeksi"
+    },
+    {
+      "id": "boya",
+      "priceTry": 2379.97,
+      "source": "USD endeksi"
+    },
+    {
+      "id": "pvc_boru",
+      "priceTry": 125.61,
+      "source": "USD endeksi"
+    },
+    {
+      "id": "bakir_kablo",
+      "priceTry": 63.47,
+      "source": "USD endeksi"
+    },
+    {
+      "id": "ppr_boru",
+      "priceTry": 46.28,
+      "source": "USD endeksi"
+    },
+    {
+      "id": "izolasyon",
+      "priceTry": 158.66,
+      "source": "USD endeksi"
+    },
+    {
+      "id": "su_yalitim",
+      "priceTry": 112.39,
+      "source": "USD endeksi"
+    },
+    {
+      "id": "dere_oluk",
+      "priceTry": 330.55,
+      "source": "USD endeksi"
     }
   ]
 }
